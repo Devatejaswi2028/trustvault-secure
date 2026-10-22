@@ -14,16 +14,180 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          details: Json
+          document_id: string | null
+          id: string
+          outcome: string
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          document_id?: string | null
+          id?: string
+          outcome: string
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          details?: Json
+          document_id?: string | null
+          id?: string
+          outcome?: string
+        }
+        Relationships: []
+      }
+      document_permissions: {
+        Row: {
+          created_at: string
+          document_id: string
+          granted_by: string
+          id: string
+          permission: Database["public"]["Enums"]["doc_permission"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_id: string
+          granted_by: string
+          id?: string
+          permission: Database["public"]["Enums"]["doc_permission"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_id?: string
+          granted_by?: string
+          id?: string
+          permission?: Database["public"]["Enums"]["doc_permission"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "document_permissions_document_id_fkey"
+            columns: ["document_id"]
+            isOneToOne: false
+            referencedRelation: "documents"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          id: string
+          mime_type: string
+          name: string
+          owner_id: string
+          size_bytes: number
+          storage_path: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          mime_type: string
+          name: string
+          owner_id: string
+          size_bytes: number
+          storage_path: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          mime_type?: string
+          name?: string
+          owner_id?: string
+          size_bytes?: number
+          storage_path?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      can_edit_document: {
+        Args: { _doc: string; _user: string }
+        Returns: boolean
+      }
+      can_read_document: {
+        Args: { _doc: string; _user: string }
+        Returns: boolean
+      }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
+      is_document_owner: {
+        Args: { _doc: string; _user: string }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "owner" | "viewer"
+      doc_permission: "read" | "edit"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +314,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "owner", "viewer"],
+      doc_permission: ["read", "edit"],
+    },
   },
 } as const
