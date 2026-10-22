@@ -112,7 +112,7 @@ function EditForm({ doc }: { doc: { id: string; name: string; category: string; 
   return (
     <form className="mt-6 space-y-4 rounded-lg border bg-card p-5 shadow-card" onSubmit={async (e) => {
       e.preventDefault();
-      if (!name.trim()) return toast.error("Name is required");
+      if (!name.trim()) { toast.error("Name is required"); return; }
       setSaving(true);
       try {
         await updateDocument({ data: { id: doc.id, name, category, description } });

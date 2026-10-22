@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { FileText, LayoutDashboard, LogOut, Menu, ScrollText, Share2, ShieldCheck, Upload, User, Users, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getMe } from "@/lib/trustvault.functions";
@@ -105,7 +105,7 @@ export function AppShell() {
   );
 }
 
-export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: React.ReactNode }) {
+export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
   return (
     <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
       <div>

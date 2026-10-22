@@ -51,7 +51,7 @@ export function validateUpload(input: {
   if (!rule) return { ok: false, reason: "Unsupported file type. Allowed: PDF, JPG, PNG, TXT" };
   if (input.size <= 0) return { ok: false, reason: "File is empty" };
   if (input.size > MAX_FILE_BYTES) return { ok: false, reason: "File exceeds the 10 MB limit" };
-  const mime = (input.mime || "").split(";")[0].trim().toLowerCase();
+  const mime = ((input.mime || "").split(";")[0] ?? "").trim().toLowerCase();
   if (!rule.mimes.includes(mime)) return { ok: false, reason: "File type does not match its extension" };
   if (!sniffMatches(ext, input.head)) return { ok: false, reason: "File content does not match its type" };
   return { ok: true, ext, mime: rule.canonical };
