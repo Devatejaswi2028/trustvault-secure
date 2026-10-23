@@ -4,7 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { validateUpload, safeDisplayName, MAX_FILE_BYTES } from "@/lib/file-validation";
 import { canRead, canEdit, canDelete, canManageSharing, type AccessFacts } from "@/lib/access";
 
-const BUCKET = "documents";
+
+const BUCKET = "trustvault-documents";
+
 const SIGNED_URL_TTL_SECONDS = 60;
 
 type Outcome = "success" | "denied" | "failure";
