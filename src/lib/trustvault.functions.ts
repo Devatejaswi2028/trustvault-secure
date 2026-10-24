@@ -260,7 +260,7 @@ export const uploadDocument = createServerFn({ method: "POST" })
     const { error: upErr } = await db.storage.from(BUCKET).upload(path, buf, { contentType: v.mime, upsert: false });
     if (upErr) {
       await audit({ actorId: userId, action: "document.upload", outcome: "failure", details: { reason: "storage" } });
-      throw new Error("Upload failed");
+      throw new Error("Upload failed")
     }
     const { error: insErr } = await db.from("documents").insert({
       id,
@@ -408,9 +408,9 @@ export const listPermissions = createServerFn({ method: "POST" })
     const db = await admin();
 
     const { data: perms, error: permsError } = await db
-      .from("document_permissions")
-      .select("document_id, user_id, permission, created_at, updated_at")
-      .eq("document_id", doc.id);
+  .from("document_permissions")
+  .select("document_id, user_id, permission, created_at")
+  .eq("document_id", doc.id);
 
     if (permsError) {
       console.error("LIST PERMISSIONS FAILED:", permsError.message);
