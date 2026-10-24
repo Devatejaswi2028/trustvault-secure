@@ -389,19 +389,66 @@ export const searchUsers = createServerFn({ method: "POST" })
     return (rows ?? []).map((r) => ({ id: r.id, email: r.email, displayName: r.display_name }));
   });
 
+
 export const listPermissions = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d: unknown) => z.object({ documentId: uuid }).parse(d))
+  .inputValidator((d: unknown) =>
+    z.object({ documentId: uuid }).parse(d),
+  )
   .handler(async ({ data, context }) => {
-    const { doc, facts } = await loadFacts(data.documentId, context.userId);
-    if (!doc || !canManageSharing(facts)) throw new AccessDenied();
+    const { doc, facts } = await loadFacts(
+      data.documentId,
+      context.userId,
+    );
+
+    if (!doc || !canManageSharing(facts)) {
+      throw new AccessDenied();
+    }
+
     const db = await admin();
-    const { data: perms } = await db.from("document_permissions").select("id, user_id, permission, created_at, updated_at").eq("document_id", doc.id);
+
+    const { data: perms, error: permsError } = await db
+      .from("document_permissions")
+      .select("document_id, user_id, permission, created_at, updated_at")
+      .eq("document_id", doc.id);
+
+    if (permsError) {
+      console.error("LIST PERMISSIONS FAILED:", permsError.message);
+      throw new Error("Could not load permissions");
+    }
+
     const ids = (perms ?? []).map((p) => p.user_id);
-    const { data: profs } = ids.length ? await db.from("profiles").select("id, email").in("id", ids) : { data: [] };
-    const em = Object.fromEntries((profs ?? []).map((p) => [p.id, p.email]));
-    return (perms ?? []).map((p) => ({ ...p, email: em[p.user_id] ?? "unknown" }));
+
+    let profs: { id: string; email: string }[] = [];
+
+    if (ids.length > 0) {
+      const { data, error: profilesError } = await db
+        .from("profiles")
+        .select("id, email")
+        .in("id", ids);
+
+      if (profilesError) {
+        console.error(
+          "LOAD SHARED USER EMAILS FAILED:",
+          profilesError.message,
+        );
+        throw new Error("Could not load shared user emails");
+      }
+
+      profs = data ?? [];
+    }
+
+    const emailMap = Object.fromEntries(
+      profs.map((p) => [p.id, p.email]),
+    );
+
+    return (perms ?? []).map((p) => ({
+      ...p,
+      id: p.user_id,
+      email: emailMap[p.user_id] ?? "unknown",
+    }));
   });
+
 
 export const grantPermission = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
